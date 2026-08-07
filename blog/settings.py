@@ -51,7 +51,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "blog.urls"
+ROOT_URLCONF = "blog.urls"  
 
 TEMPLATES = [
     {
@@ -120,3 +120,6 @@ STATIC_URL = "static/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
+
+
+AUTH_USER_MODEL = 'app.CustomUser'
