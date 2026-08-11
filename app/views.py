@@ -1,16 +1,13 @@
 from django.db.models import Count
-from django.shortcuts import render
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
-    CreateAPIView,
-    UpdateAPIView,
-    DestroyAPIView,
 )
 from .models import Comment, Post, Book, Category, Author, CustomUser
 from .serializers import (
     PostSerializer,
     BookSerializer,
+    BookDetailSerializer,
     AuthorSerializer,
     CustomUserSerializer,
 )
@@ -28,8 +25,18 @@ class PostView(ListAPIView):
 
 
 class BookView(ListAPIView):
-    queryset = Book.objects.prefetch_related("authors").all()
+    queryset = Book.objects.prefetch_related("authors", "categories").all()
     serializer_class = BookSerializer
+
+
+class BookDetailView(RetrieveAPIView):
+    lookup_field = "slug"
+    queryset = Book.objects.prefetch_related(
+        "authors",
+        "categories",
+        "posts__author_user",
+    ).all()
+    serializer_class = BookDetailSerializer
 
 
 class AuthorView(ListAPIView):

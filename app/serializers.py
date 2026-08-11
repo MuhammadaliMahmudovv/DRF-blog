@@ -6,6 +6,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["username", "password"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate_password(self, value):
         has_digits = any(char.isdigit() for char in value)
@@ -21,11 +22,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
+        return CustomUser.objects.create_user(
             username=validated_data.get("username"),
             password=validated_data.get("password"),
         )
-        return user
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -34,12 +34,10 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class BookSerializer(serializers.ModelSerializer):
-    authors = AuthorSerializer(many=True, read_only=True)
-
+class CategoryBookSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Book
-        fields = "__all__"
+        model = Category
+        fields = ["id", "title", "slug"]
 
 
 class AuthorBookSerializer(serializers.ModelSerializer):
@@ -65,7 +63,6 @@ class PostAuthorUserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     book = PostBookSerializer(read_only=True)
     author_user = PostAuthorUserSerializer(read_only=True)
-
     comments_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -80,4 +77,50 @@ class PostSerializer(serializers.ModelSerializer):
             "rating",
             "created_at",
             "comments_count",
+        ]
+
+
+class BookSerializer(serializers.ModelSerializer):
+    authors = AuthorBookSerializer(many=True, read_only=True)
+    categories = CategoryBookSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Book
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "authors",
+            "categories",
+            "cover",
+            "publication_year",
+            "isbn",
+        ]
+
+
+class BookPostSerializer(serializers.ModelSerializer):
+    author_user = PostAuthorUserSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ["id", "title", "slug", "author_user", "rating", "created_at"]
+
+
+class BookDetailSerializer(serializers.ModelSerializer):
+    authors = AuthorBookSerializer(many=True, read_only=True)
+    categories = CategoryBookSerializer(many=True, read_only=True)
+    posts = BookPostSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Book
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "authors",
+            "categories",
+            "cover",
+            "publication_year",
+            "isbn",
+            "posts",
         ]
