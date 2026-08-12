@@ -10,6 +10,7 @@ from .serializers import (
     BookDetailSerializer,
     AuthorSerializer,
     CustomUserSerializer,
+    PostDetailSerializer,
 )
 
 
@@ -22,6 +23,20 @@ class PostView(ListAPIView):
         .order_by("-created_at")
     )
     serializer_class = PostSerializer
+
+
+class PostDetailView(RetrieveAPIView):
+    lookup_field = "slug"
+    queryset = (
+        Post.objects.all()
+        .select_related("book", "author_user")
+        .prefetch_related(
+            "book__authors",
+            "book__categories",
+            "comments__user",
+        )
+    )
+    serializer_class = PostDetailSerializer
 
 
 class BookView(ListAPIView):

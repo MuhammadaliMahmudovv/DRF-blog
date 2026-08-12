@@ -48,10 +48,20 @@ class AuthorBookSerializer(serializers.ModelSerializer):
 
 class PostBookSerializer(serializers.ModelSerializer):
     authors = AuthorBookSerializer(many=True, read_only=True)
+    categories = CategoryBookSerializer(many=True, read_only=True)
 
     class Meta:
         model = Book
-        fields = ["id", "title", "cover", "authors"]
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "cover",
+            "authors",
+            "publication_year",
+            "isbn",
+            "categories",
+        ]
 
 
 class PostAuthorUserSerializer(serializers.ModelSerializer):
@@ -77,6 +87,34 @@ class PostSerializer(serializers.ModelSerializer):
             "rating",
             "created_at",
             "comments_count",
+        ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = PostAuthorUserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "user", "text", "created_at"]
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    book = PostBookSerializer(read_only=True)
+    author_user = PostAuthorUserSerializer(read_only=True)
+    comments = CommentSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "content",
+            "rating",
+            "created_at",
+            "book",
+            "author_user",
+            "comments",
         ]
 
 
