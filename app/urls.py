@@ -6,4 +6,6 @@ urlpatterns = [
     path("posts/<slug:slug>/", views.PostDetailView.as_view()),
     path("books/", views.BookView.as_view()),
     path("books/<slug:slug>/", views.BookDetailView.as_view()),
+    path("authors/", views.AuthorView.as_view()),
+    path("authors/<slug:slug>/", views.AuthorDetailView.as_view()),
 ]

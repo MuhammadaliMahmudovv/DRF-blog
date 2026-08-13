@@ -2,6 +2,9 @@ from django.db.models import Count
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+    CreateAPIView
 )
 from .models import Comment, Post, Book, Category, Author, CustomUser
 from .serializers import (
@@ -11,6 +14,7 @@ from .serializers import (
     AuthorSerializer,
     CustomUserSerializer,
     PostDetailSerializer,
+    AuthorDetailSerializer,
 )
 
 
@@ -39,6 +43,7 @@ class PostDetailView(RetrieveAPIView):
     serializer_class = PostDetailSerializer
 
 
+
 class BookView(ListAPIView):
     queryset = Book.objects.prefetch_related("authors", "categories").all()
     serializer_class = BookSerializer
@@ -55,5 +60,11 @@ class BookDetailView(RetrieveAPIView):
 
 
 class AuthorView(ListAPIView):
-    queryset = Author.objects.all()
+    queryset = Author.objects.all().annotate(books_count=Count("book"))
     serializer_class = AuthorSerializer
+
+
+class AuthorDetailView(RetrieveAPIView):
+    lookup_field = "slug"
+    queryset = Author.objects.prefetch_related("book_set")
+    serializer_class = AuthorDetailSerializer

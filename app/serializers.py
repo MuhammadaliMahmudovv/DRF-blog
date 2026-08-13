@@ -29,9 +29,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+    books_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Author
-        fields = "__all__"
+        fields = [
+            "id",
+            "slug",
+            "first_name",
+            "last_name",
+            "avatar",
+            "nationality",
+            "books_count",
+        ]
 
 
 class CategoryBookSerializer(serializers.ModelSerializer):
@@ -134,6 +144,33 @@ class BookSerializer(serializers.ModelSerializer):
             "publication_year",
             "isbn",
         ]
+
+
+class AuthorDetailSerializer(serializers.ModelSerializer):
+    books = BookSerializer(many=True, read_only=True, source="book_set")
+    posts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Author
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "slug",
+            "avatar",
+            "nationality",
+            "date_of_birth",
+            "date_of_death",
+            "books",
+            "posts",
+        ]
+
+    def get_posts(self, obj):
+        posts = Post.objects.filter(
+            book__authors=obj, status=Post.STATUS_CHOICES.PUBLISHED
+        ).select_related("author_user", "book")
+
+        return BookPostSerializer(posts, many=True).data
 
 
 class BookPostSerializer(serializers.ModelSerializer):

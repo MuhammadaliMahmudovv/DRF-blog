@@ -41,7 +41,7 @@ class Book(models.Model):
         return self.title
 
 
-class  Post(models.Model):
+class Post(models.Model):
     class STATUS_CHOICES(models.TextChoices):
         DRAFT = "draft", "Draft"
         PUBLISHED = "published", "Published"
