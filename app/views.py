@@ -1,10 +1,10 @@
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
     DestroyAPIView,
-    CreateAPIView
+    CreateAPIView,
 )
 from .models import Comment, Post, Book, Category, Author, CustomUser
 from .serializers import (
@@ -32,7 +32,7 @@ class PostView(ListAPIView):
 class PostDetailView(RetrieveAPIView):
     lookup_field = "slug"
     queryset = (
-        Post.objects.all()
+        Post.objects.filter(status=Post.STATUS_CHOICES.PUBLISHED)
         .select_related("book", "author_user")
         .prefetch_related(
             "book__authors",
@@ -41,7 +41,6 @@ class PostDetailView(RetrieveAPIView):
         )
     )
     serializer_class = PostDetailSerializer
-
 
 
 class BookView(ListAPIView):
@@ -54,7 +53,12 @@ class BookDetailView(RetrieveAPIView):
     queryset = Book.objects.prefetch_related(
         "authors",
         "categories",
-        "posts__author_user",
+        Prefetch(
+            "posts",
+            queryset=Post.objects.filter(
+                status=Post.STATUS_CHOICES.PUBLISHED
+            ).select_related("author_user"),
+        ),
     ).all()
     serializer_class = BookDetailSerializer
 
