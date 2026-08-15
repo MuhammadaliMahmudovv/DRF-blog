@@ -1,4 +1,7 @@
 from django.db.models import Count, Prefetch
+from django.utils.text import slugify
+from .permissions import IsPostAuthor
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -10,6 +13,7 @@ from .models import Comment, Post, Book, Category, Author, CustomUser
 from .serializers import (
     PostSerializer,
     BookSerializer,
+    PostCreateSerializer,
     BookDetailSerializer,
     AuthorSerializer,
     CustomUserSerializer,
@@ -41,6 +45,29 @@ class PostDetailView(RetrieveAPIView):
         )
     )
     serializer_class = PostDetailSerializer
+
+
+class PostCreateView(CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data.get("title")
+        serializer.save(author_user=self.request.user, slug=slugify(title))
+
+
+class PostUpdateView(UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostCreateSerializer
+    lookup_field = "slug"
+    permission_classes = [IsAuthenticated, IsPostAuthor]
+
+
+class PostDestroyView(DestroyAPIView):
+    queryset = Post.objects.all()
+    lookup_field = "slug"
+    permission_classes = [IsAuthenticated, IsPostAuthor]
 
 
 class BookView(ListAPIView):

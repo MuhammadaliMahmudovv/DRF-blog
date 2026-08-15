@@ -92,11 +92,27 @@ class PostSerializer(serializers.ModelSerializer):
             "title",
             "slug",
             "content",
-            "book",
+            "book", 
             "author_user",
             "rating",
             "created_at",
             "comments_count",
+        ]
+
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(
+        queryset=Book.objects.all(), required=False, allow_null=True
+    )
+
+    class Meta:
+        model = Post
+        fields = [
+            "title",
+            "content",
+            "book",
+            "rating",
+            "status",
         ]
 
 
