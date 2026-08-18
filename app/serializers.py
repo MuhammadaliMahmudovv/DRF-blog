@@ -92,7 +92,7 @@ class PostSerializer(serializers.ModelSerializer):
             "title",
             "slug",
             "content",
-            "book", 
+            "book",
             "author_user",
             "rating",
             "created_at",
@@ -215,3 +215,16 @@ class BookDetailSerializer(serializers.ModelSerializer):
             "isbn",
             "posts",
         ]
+
+
+class BookCreateSerializer(serializers.ModelSerializer):
+    authors = serializers.PrimaryKeyRelatedField(
+        queryset=Author.objects.all(), many=True
+    )
+    categories = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), many=True
+    )
+
+    class Meta:
+        model = Book
+        fields = ["title", "authors", "categories", "cover", "publication_year", "isbn"]

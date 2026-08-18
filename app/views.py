@@ -1,3 +1,4 @@
+import uuid
 from django.db.models import Count, Prefetch
 from django.utils.text import slugify
 from .permissions import IsPostAuthor
@@ -54,7 +55,8 @@ class PostCreateView(CreateAPIView):
 
     def perform_create(self, serializer):
         title = serializer.validated_data.get("title")
-        serializer.save(author_user=self.request.user, slug=slugify(title))
+        unique_slug = f"{slugify(title)}-{uuid.uuid4().hex[:6]}"
+        serializer.save(author_user=self.request.user, slug=unique_slug)
 
 
 class PostUpdateView(UpdateAPIView):
@@ -88,6 +90,11 @@ class BookDetailView(RetrieveAPIView):
         ),
     ).all()
     serializer_class = BookDetailSerializer
+
+
+class BookCreateView(CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
 
 class AuthorView(ListAPIView):
