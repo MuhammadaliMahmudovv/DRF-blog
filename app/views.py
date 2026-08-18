@@ -2,7 +2,7 @@ import uuid
 from django.db.models import Count, Prefetch
 from django.utils.text import slugify
 from .permissions import IsPostAuthor
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -20,6 +20,7 @@ from .serializers import (
     CustomUserSerializer,
     PostDetailSerializer,
     AuthorDetailSerializer,
+    UserRegistrationSerializer,
 )
 
 
@@ -106,3 +107,9 @@ class AuthorDetailView(RetrieveAPIView):
     lookup_field = "slug"
     queryset = Author.objects.prefetch_related("book_set")
     serializer_class = AuthorDetailSerializer
+
+
+class UserRegisterView(CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]
